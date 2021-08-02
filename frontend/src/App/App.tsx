@@ -21,11 +21,13 @@ interface AppState {
 class App extends React.Component<AppProps, AppState> {
   private serverUrl: string;
   private columnTypes: ColumnType[];
+  private scrollChunk: number;
 
   constructor(props: AppProps) {
     super(props);
     this.serverUrl = "http://localhost:8080";
     this.columnTypes = Object.keys(typesToFunctions) as ColumnType[];
+    this.scrollChunk = 20;
 
     this.state = {
       columns: [],
@@ -42,8 +44,12 @@ class App extends React.Component<AppProps, AppState> {
 
   getData = async () => {
     const columns = await getColumns(this.serverUrl);
-    const promotions = await getPromotions(this.serverUrl);
-    this.setState({ columns, promotions });
+    this.setState({ columns, promotions: [] }, this.fetchPromotions);
+  }
+
+  fetchPromotions = async () => {
+    const promotions = await getPromotions(this.serverUrl, this.state.promotions.length, this.scrollChunk);
+    this.setState(state => ({ promotions: [...state.promotions, ...promotions] }));
   }
 
   removeColumn = async (_id: ColumnId) => {
@@ -86,14 +92,14 @@ class App extends React.Component<AppProps, AppState> {
   render() {
     const { classes } = this.props;
     const { columns, promotions, isDialogOpen, columnToAdd, columnTypeToAdd } = this.state;
-    const { removeColumn, initPromotions, clearPromotions, columnTypes, addColumn, removePromotion, duplicatePromotion, updatePromotion } = this;
+    const { removeColumn, initPromotions, clearPromotions, columnTypes, addColumn, removePromotion, duplicatePromotion, updatePromotion, fetchPromotions } = this;
 
     return (
       <div className={classes.root}>
         <div className={classes.title}>
           Promotions Screen
         </div>
-        <PromotionsTable {...{ columns, promotions, removeColumn, removePromotion, duplicatePromotion, updatePromotion }} />
+        <PromotionsTable {...{ columns, promotions, removeColumn, removePromotion, duplicatePromotion, updatePromotion, fetchPromotions }} />
         <div className={classes.buttons}>
           <Tooltip title="Generate 10000 rows of promotions">
             <Fab color="default" aria-label="add" onClick={initPromotions}>

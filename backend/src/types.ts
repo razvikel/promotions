@@ -28,3 +28,8 @@ export interface CreateColumnRequestBody {
 export interface UpdatePromotionRequestBody {
     promotion: Promotion;
 }
+
+export interface GetPromotionsRequestQuery {
+    skip: string;
+    limit: string;
+}

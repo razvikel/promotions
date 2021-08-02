@@ -1,12 +1,17 @@
 import { Request, Response } from "express";
 import { INIT_AMOUNT } from "../consts";
 import { addPromotions, getPromotions, removeAllPromotions, removePromotion, updatePromotion } from "../Database/Promotion/Promotion.dal";
-import { isUpdatePromotionRequestBody } from "../typeguards";
+import { isGetPromotionsRequestQuery, isUpdatePromotionRequestBody } from "../typeguards";
 import { PromotionGenerator, PromotionModel } from "../types";
 
 export const getPromotionsHandler = (promotionModel: PromotionModel) => async (req: Request, res: Response) => {
-    const promotions = await getPromotions(promotionModel);
-    res.send(promotions);
+    if (isGetPromotionsRequestQuery(req.query)) {
+        const { skip, limit } = req.query;
+        const promotions = await getPromotions(promotionModel, Number(skip), Number(limit));
+        res.send(promotions);
+    } else {
+        res.sendStatus(400);
+    }
 }
 
 export const promotionsInitializationHandler = (promotionModel: PromotionModel, promotionGenerator: PromotionGenerator) => async (req: Request, res: Response) => {

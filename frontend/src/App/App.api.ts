@@ -7,8 +7,8 @@ export const getColumns = async (serverUrl: string): Promise<Column[]> => {
     return columns;
 }
 
-export const getPromotions = async (serverUrl: string): Promise<Promotion[]> => {
-    const { data: promotions } = await axios.get(`${serverUrl}/promotions`);
+export const getPromotions = async (serverUrl: string, skip: number, limit: number): Promise<Promotion[]> => {
+    const { data: promotions } = await axios.get(`${serverUrl}/promotions?skip=${skip}&limit=${limit}`);
     return promotions;
 }
 

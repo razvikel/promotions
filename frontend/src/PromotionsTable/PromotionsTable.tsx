@@ -2,11 +2,10 @@ import { IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHe
 import { Delete } from "@material-ui/icons";
 import { WithStyles } from "@material-ui/styles/withStyles/withStyles";
 import { FunctionComponent } from "react";
+import InfiniteScroll from 'react-infinite-scroll-component';
 import { Column, ColumnId, Promotion } from "../App/App.types";
 import PromotionRow from "../PromotionRow/PromotionRow";
 import styles from "./PromotionsTable.styles";
-import InfiniteScroll from 'react-infinite-scroll-component';
-import { useState } from "react";
 
 interface PromotionsTableProps extends WithStyles<typeof styles> {
     columns: Column[];
@@ -15,19 +14,20 @@ interface PromotionsTableProps extends WithStyles<typeof styles> {
     removePromotion: (_id: string) => Promise<void>;
     duplicatePromotion: (promotion: Promotion) => Promise<void>;
     updatePromotion: (promotion: Promotion) => Promise<void>;
+    fetchPromotions: () => Promise<void>;
 };
 
 const PromotionsTable: FunctionComponent<PromotionsTableProps> = (props) => {
-    const { classes, columns, promotions, removeColumn, removePromotion, duplicatePromotion, updatePromotion } = props;
-    const promotionsChunk = 20;
-    let [promotionsDisplayed, setPromotionsDisplayed] = useState<number>(0);
-
-    const displayedPromotions = promotions.slice(0, promotionsDisplayed + promotionsChunk);
+    const { classes, columns, promotions, removeColumn, removePromotion, duplicatePromotion, updatePromotion, fetchPromotions } = props;
 
     return (
         <InfiniteScroll
-            dataLength={displayedPromotions.length}
-            next={() => setPromotionsDisplayed(Math.min(promotionsDisplayed + promotionsChunk, promotions.length - promotionsChunk))}
+            dataLength={promotions.length}
+            next={async () => {
+                if (promotions.length > 0) {
+                    await fetchPromotions();
+                }
+            }}
             hasMore={true}
             loader={null}
             scrollableTarget="scrollable"
@@ -62,7 +62,7 @@ const PromotionsTable: FunctionComponent<PromotionsTableProps> = (props) => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {displayedPromotions.map(promotion => <PromotionRow key={promotion._id} {...{ promotion, columns, removePromotion, duplicatePromotion, updatePromotion }} />)}
+                                {promotions.map(promotion => <PromotionRow key={promotion._id} {...{ promotion, columns, removePromotion, duplicatePromotion, updatePromotion }} />)}
                             </TableBody>
                         </Table>
                     </div>

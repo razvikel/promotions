@@ -11,4 +11,4 @@ export const removePromotion = async (promotionModel: PromotionModel, _id: strin
 
 export const removeAllPromotions = async (promotionModel: PromotionModel) => promotionModel.remove({});
 
-export const getPromotions = async (promotionModel: PromotionModel): Promise<Promotion[]> => promotionModel.find({});
+export const getPromotions = async (promotionModel: PromotionModel, skip: number, limit: number): Promise<Promotion[]> => promotionModel.find({}).skip(skip).limit(limit);
